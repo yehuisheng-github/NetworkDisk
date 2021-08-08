@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>首页</title>
+    <link rel="shortcut icon" th:href="@{/favicon.ico/abc.ico}"></link>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    
+    <!-- 头部 -->
+    <div th:replace="common/pageCommon::header"></div>
+    
+    <!-- 内容主体区域 -->
+    <div class="layui-body">
+        <div style="padding: 15px;">
+        	<div style="text-align: center;">
+        		<input th:value="${#strings.isEmpty(clientPath)}?'/':${clientPath}" 
+        			size="120px" style="height: 36px;font-size: 18px" class="clientPath">
+        	</div>
+        	<div style="height: 10px;"></div><br><br>
+        	
+        	<!-- 显示查询的文件 -->
+        	<table>
+        		<tr id="showfile" style="text-align: center;float:left;" th:each="f:${list}">
+        			<td>
+	        			<div style="margin: 10px 16px;height: 160px;">
+							<img  class="img" th:attr="url=${f.name}" 
+								style="width: 100px;height: 100px;"  th:src="@{${f.typeIco}}"/>
+							<div class="myfile" th:text="${f.name}"></div>
+							<div class="size" th:text="'占用空间：'+${f.size}" th:if="${f.type!='文件夹'}"></div>
+						</div>
+					</td>
+        		</tr>
+        	</table>
+			<div id="showfile" style="text-align: center;float:left;" th:if="${#strings.isEmpty(list)}">
+				<img  class="img" style="width: 100px;height: 100px;" th:src="@{/type/file.png}"/>
+				<div class="myfile">myfile</div>
+			</div>
+			
+        </div>
+	    <!-- css{overflow:auto;} html{设置一个div在底部} -->
+        <div style="height: 150px;"></div>
+    </div>
+
+    <!-- 底部固定区域 -->
+    <div th:replace="common/pageCommon::footer"></div>
+    
+</div>
+
+<!-- layui JS模块 -->
+<div th:replace="common/pageCommon::javascript"></div>
+
+<!-- 分类页面 -->
+<div th:replace="common/pageCommon::classify"></div>
+
+<!-- 不使用layui的js文件！ -->
+<script th:src="@{/js/jquery-1.8.3.js}"></script>
+<script>
+    //JavaScript代码区域
+    $(function(){
+		
+		//更改路径查询文件
+    	$(".clientPath").change(function(){
+	    	var path=$(".clientPath").val().trim();
+	    	location.href="[[@{/index/look?clientPath=}]]"+path+"&userId="+[[${session?.user?.id}]];
+	    });
+    	
+		$("#operate").css("display","block");
+    });
+ 
+</script>
+</body>
+</html>

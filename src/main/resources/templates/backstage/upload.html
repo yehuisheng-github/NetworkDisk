@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<title>文件上传</title>
+    <link rel="shortcut icon" th:href="@{/favicon.ico/abc.ico}"></link>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+</head>
+</head>
+<body class="layui-layout-body">
+
+	<div class="layui-layout layui-layout-admin">
+	<!-- 头部 -->
+	<div th:replace="common/pageCommon::header"></div>
+		
+	<!-- 文件导航栏 -->
+    <div style="height: 0px;"></div><br><br>
+    <div style="text-align: center;position:absolute;left:20%;top:12%;">
+        <input th:value="${#strings.isEmpty(clientPath)}?'/':${clientPath}" 
+    		size="120px" style="height: 36px;font-size: 18px" class="clientPath" disabled/>
+    </div>
+	
+	<!-- 文件上传表单 -->
+	<div class="layui-upload" style="position:absolute;left:15%;top:20%;width: 80%;height: 70%;">
+	    
+	    <div class="layui-upload-list">
+	        <table class="layui-table">
+	            <thead>
+	                <tr>
+	                    <th>文件名</th>
+	                    <th>大小</th>
+	                    <th>状态</th>
+	                    <th>操作</th>
+	                </tr>
+	            </thead>
+	            <tbody id="demoList"></tbody>
+	        </table>
+	    </div>
+	    <div style="text-align: center;">
+	    	<button type="button" class="layui-btn layui-btn-normal" id="testList">选择文件</button>
+	    	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	    	<button type="button" class="layui-btn" id="testListAction">开始上传</button>
+	    </div>
+	    <!-- css{overflow:auto;} html{设置一个div在底部} -->
+        <div style="height: 150px;"></div>
+	</div>
+		
+		<!-- 底部固定区域 -->
+	    <div th:replace="common/pageCommon::footer"></div>
+    </div>
+    
+	<!-- 分类页面 -->
+	<div th:replace="common/pageCommon::classify"></div>
+    
+	<script th:src="@{/js/jquery-1.8.3.js}"></script>
+	<script>
+	$(function(){
+		if('[[${clientPath}]]'=="/" || '[[${clientPath}]]'==null){
+			alert("请选择上传文件的路径：进入上传的文件夹后再点击文件上传！");
+			window.history.back();
+		}
+		
+		//获取文件共享信息
+		$(".getfile").click(function(){
+	    	location.href="[[@{/share/getShare}]]";
+	    });
+	})
+	</script>
+	
+	<!-- JavaScript代码区域 -->
+	<script th:src="@{/layui/layui.js}"></script>
+	<script>
+ 		//定义文件队列
+        var files=[];
+ 		//引入layui官方模块
+        layui.use(['upload',"element","jquery"], function(){
+        	//定义模块名
+            var $ = layui.jquery;
+        	var upload = layui.upload;
+ 			
+        	//配置上传模块
+            var demoListView = $('#demoList');
+            var uploadListIns = upload.render({
+                elem: '#testList'			//绑定页面元素
+                ,url: '[[@{/upload}]]'		//Ajax请求路径
+                ,accept: 'file'				//允许所有文件进行上传
+                ,data:{'userId':'[[${session?.user?.id}]]','clientPath':'[[${clientPath}]]'}   //携带请求参数
+                ,auto: false				//关闭自动上传
+    		    ,size:20971520				//设置文件最大可允许上传的大小，单位 KB，springboot配置文件也要配置
+    		    ,multiple:true				//允许多文件上传
+                ,bindAction: '#testListAction'		//绑定元素触发上传事件
+    		  	
+                ,choose: function(obj){
+                	//将每次选择的文件追加到文件队列
+                    var files = this.files = obj.pushFile(); 
+                    //读取本地文件
+                    obj.preview(function(index, file, result){
+                        var tr = $(['<tr id="upload-'+ index +'">'
+                            ,'<td>'+ file.name +'</td>'
+                            ,'<td>'+ (file.size/1014).toFixed(1) +'kb</td>'
+                            ,'<td>等待上传</td>'
+                            ,'<td>'
+                            ,'<button class="layui-btn layui-btn-mini demo-reload layui-hide">重传</button>'
+                            ,'<button class="layui-btn layui-btn-mini layui-btn-danger demo-delete">删除记录</button>'
+                            ,'</td>'
+                            ,'</tr>'].join(''));
+ 
+                        //上传失败后再次单个重传
+                        tr.find('.demo-reload').on('click', function(){
+                            obj.upload(index, file);
+                        });
+ 
+                        //从文件队列中删除待上传的文件
+                        tr.find('.demo-delete').on('click', function(){
+                        	//删除对应的文件
+                            delete files[index];
+                            tr.remove();
+                         	//清空 input file 值，以免删除后出现同名文件不可选
+                            uploadListIns.config.elem.next()[0].value = '';
+                        });
+ 						
+                        //追加待上传的文件到表单
+                        demoListView.append(tr);
+                    });
+                }
+                ,done: function(res, index, upload){
+                	//上传成功
+                    if(res.code == 200){
+                        files.push({"fileName":res.fileName,"fileUrl":res.fileUrl,"fileSize":res.fileSize});
+                        var json = JSON.stringify(files);
+                        //将上传的文件信息加入到集合中并转换成json字符串
+                        $("#fileJson").attr("value", json);
+                        
+                        var fileUrl=res.fileUrl;
+                        var tr = demoListView.find('tr#upload-'+ index)
+                                ,tds = tr.children();
+                        tds.eq(2).html('<span style="color: #5FB878;">上传成功</span>');
+                        return delete this.files[index]; //删除文件队列已经上传成功的文件
+                    }
+                    this.error(res, index, upload);
+                }
+                ,error: function(res, index, upload){
+                	layer.msg(res.msg)
+                    var tr = demoListView.find('tr#upload-'+ index);
+                    var tds = tr.children();
+                    //显示上传状态
+                    tds.eq(2).html('<span style="color: #FF5722;">上传失败</span>');
+                    //显示重传
+                    tds.eq(3).find('.demo-reload').removeClass('layui-hide');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

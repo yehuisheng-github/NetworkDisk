@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>提示</title>
+    <link rel="shortcut icon" th:href="@{/favicon.ico/abc.ico}"></link>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    
+    <!-- 头部 -->
+    <div th:replace="common/pageCommon::header"></div>
+    
+    <!-- 内容主体区域 -->
+    <div class="layui-body">
+    	<div style="position:absolute;left:32%;top:32%;text-align: center;">
+			<h1>文件操作时发生错误！</h1>
+			<br>
+			<h1>原因：[[${exception}]]</h1>
+		</div>
+    </div>
+
+    <!-- 底部固定区域 -->
+    <div th:replace="common/pageCommon::footer"></div>
+    
+</div>
+
+<!-- 分类页面 -->
+<div th:replace="common/pageCommon::classify"></div>
+
+<script th:src="@{/layui/layui.js}"></script>
+<script>
+	//JavaScript代码区域，必须引用element模块，否则部分功能失效
+	layui.use('element', function(){
+		var element = layui.element;
+	});
+</script>

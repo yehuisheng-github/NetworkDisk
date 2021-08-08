@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<title>文件共享</title>
+    <link rel="shortcut icon" th:href="@{/favicon.ico/abc.ico}"></link>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+</head>
+<body>
+<div class="layui-layout layui-layout-admin">
+    
+    <!-- 头部 -->
+    <div th:replace="common/pageCommon::header"></div>
+    
+    <!-- 内容主体区域 -->
+    <div class="layui-body">
+    
+    	<!-- 文件导航栏 -->
+    	<div style="height: 0px;"></div><br><br>
+    	<div style="text-align: center; position:absolute;left:12%;top:8%;">
+        	<input th:value="${#strings.isEmpty(clientPath)}?'/':${clientPath}" 
+        		style="height: 36px;width: 840px;font-size: 18px" class="clientPath" disabled/>
+        </div>
+    
+        <!-- 链接行 -->
+        <div size="80px" style="text-align: center; position:absolute;left:12%;top:40%;">
+        	<input type="text" class="link" style="width: 720px;height: 36px;" disabled="disabled">
+        	<input type="submit" style="width: 160px;height: 36px;" class="submit" th:value="生成文件分享链接">
+        </div>
+	    <!-- css{overflow:auto;} html{设置一个div在底部} -->
+        <div style="height: 150px;"></div>
+    </div>
+
+    <!-- 底部固定区域 -->
+    <div th:replace="common/pageCommon::footer"></div>
+    
+</div>
+</body>
+
+<!-- 分类页面 -->
+<div th:replace="common/pageCommon::classify"></div>
+
+<script th:src="@{/layui/layui.js}"></script>
+<script th:src="@{/js/jquery-1.8.3.js}"></script>
+<script type="text/javascript">
+	$(function(){
+		$(".submit").click(function () {
+			var path=$(".clientPath").val().trim();
+    		if(path=="/"){
+				alert("请选择需要共享的文件！");
+				return false;
+			}
+    		if(path.indexOf(".")==-1){
+    			alert("共享的必须是文件，不能是文件夹！");
+				return false;
+    		}
+			$.ajax({
+				url:"[[@{/share/getlink}]]",
+				data:{"clientPath":path,"userId":"[[${session?.user?.id}]]"},
+				type:"get",
+				datatype:"json",
+				success:function (event) {
+					$(".link").attr("value",event);
+					alert("复制该链接，发送给好友，好友可通过此链接获取文件，链接7天有效！")
+				}
+			});
+		});
+	})
+</script>
+</html>

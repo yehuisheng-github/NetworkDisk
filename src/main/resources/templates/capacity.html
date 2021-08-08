@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>存储空间</title>
+    <link rel="shortcut icon" th:href="@{/favicon.ico/abc.ico}"></link>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+    <link rel="stylesheet" th:href="@{/js/capacity.css}">
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    
+    <!-- 头部 -->
+    <div th:replace="common/pageCommon::header"></div>
+    
+    <!-- 内容主体区域 -->
+    <div class="layui-body" style="overflow: auto;">
+    	<div class="container">
+	        <div class="card">  
+	            <div class="box">
+	                <div class="percent">
+	                    <svg> <!--图形容器-->
+	                        <circle cx="70" cy="70" r="70"></circle> <!--圆-->
+	                        <circle cx="70" cy="70" r="70"></circle> <!--进度条圆-->
+	                    </svg>
+	                    <div class="number">
+	                        <h2 id="percentage"></h2> <!--圆内百分比-->
+	                    </div>
+	                </div> 
+	                <h2 class="text" id="used"></h2>
+	                <h2 class="text" id="usable"></h2>
+	                <h2 class="text">总容量：20.00GB</h2>
+	            </div>
+	        </div>
+	    </div>
+    </div>
+
+    <!-- 底部固定区域 -->
+    <div th:replace="common/pageCommon::footer"></div>
+    
+</div>
+
+<!-- 分类页面 -->
+<div th:replace="common/pageCommon::classify"></div>
+
+<script th:src="@{/layui/layui.js}"></script>
+<script>
+	//JavaScript代码区域，必须引用element模块，否则部分功能失效
+	layui.use('element', function(){
+		var element = layui.element;
+	});
+</script>
+<script th:src="@{/js/jquery-1.8.3.js}"></script>
+<script type="text/javascript">
+
+	//去除百分比小数
+	$(function(){
+    	//获取文件共享信息
+    	$(".getfile").click(function(){
+	    	location.href="[[@{/share/getShare}]]";
+	    });
+    	
+		var usable="[[${(map?.usable)}]]";
+		if(usable.indexOf(".")!=-1){
+			var str=usable.split(".")[1];
+			usable=usable.split(".")[0]+"."+str.substring(0,3);
+		}
+		$("#usable").text("可用容量："+usable+"GB");
+		
+		var used="[[${(map?.used)}]]";
+		if(used.indexOf(".")!=-1){
+			var str=used.split(".")[1];
+			used=used.split(".")[0]+"."+str.substr(0,3);
+		}
+		$("#used").text("已用容量："+used+"GB");
+		
+		var percentage="[[${(map?.percentage)}]]";
+		if(percentage>=100 & percentage.indexOf(".")!=-1){
+			percentage=percentage.split(".")[0];
+		}else if(percentage.indexOf(".")!=-1){
+			var str=percentage.split(".")[1];
+			percentage=percentage.split(".")[0]+"."+str.substr(0,1);
+		}
+		$("#percentage").text(percentage+"%");
+	})
+	
+</script>

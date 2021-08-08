@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<title>登录</title>
+		<link rel="shortcut icon" th:href="@{/favicon.ico/uuu.ico}"></link>
+		
+		<script type="text/javascript" th:src="@{/js/jquery-1.8.3.js}"></script>
+		<script type="text/javascript">
+			$(function(){
+				//提交表单项时，判断用户名和密码是否为空
+				$("#sub_btn").click(function(){
+					var usernameText=$("#name").val().trim();
+					var passwordText=$("#password").val().trim();
+					if(usernameText==null || usernameText==""){
+						$("#msg").html("用户名不能为空");
+						return false;
+					}
+					if( passwordText==null || passwordText==""){
+						$("#msg").html("密码不能为空");
+						return false;
+					}
+				});
+			});
+		</script>
+		
+		<style type="text/css">
+			.login_form{
+				height:420px;
+				margin-top:25px;
+			}
+			.logo_img{
+				height:150px;
+				width:150px;
+			}
+			.dp{
+				background-color:yellow;
+				width:11px;
+				height:16px;
+				margin:1px auto -3px auto;
+			}
+			body{
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				transform: translate(-60%,-60%);
+				background-image: url("/networkdisk/picture/LoginAndRegist.jpg");
+				background-size: 41%;
+			}
+			.logo_img{
+				border-radius: 50%;
+				overflow: scroll;
+			}
+			#main{
+				width: 400px;
+				height: 500px;
+				color: white;
+				background-color: rgba(0,0,0,0.2);
+				text-align: center;
+			}
+			#msg{
+				font-size:22px;
+				color:red;
+			}
+			#end{
+				position: absolute;
+				left: 50%;
+				top: 120%;
+				transform: translate(-60%,-40%);
+				color: white;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="main">
+			<div style="height: 10px;"></div><br><br>
+			<div id="login_header">
+				<img class="logo_img" alt="" th:src="@{/picture/logo.jpg}">
+			</div>
+			<div class="login_form">
+				<div class="login_box">
+					<div class="login_title">
+						<h2>登录数据网盘</h2>
+						<span><a style="color:#ffff99;" th:href="@{/link-Regist}">没有账号？立即注册!</a></span>
+					</div>
+					<div id="div1"></div><br>
+					<span id="msg" th:text="${msg}"></span>
+					<div></div><br><br>
+					<div class="form">
+							 
+						<!-- 提交表单项给服务器中的servlet程序 -->
+						<form th:action="@{/user/login}" method="post">
+							<label>用户名称：</label>
+							<input class="itxt" type="text" placeholder="请输入用户名" autocomplete="off"
+							 tabindex="1" name="name" id="name" th:value="${name}"/>
+			
+							<br><br>
+							<label>用户密码：</label>
+							<input class="itxt" type="password" placeholder="请输入密码"
+							autocomplete="off" tabindex="1" name="password" id="password"/>
+								
+							<br><br>
+							<input type="submit" value="登     录" id="sub_btn"
+							 style="width: 120px;background-color: #996666"/>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="end"><br>2021@叶辉生的网盘系统</div>
+	</body>
+</html>
+
+
+

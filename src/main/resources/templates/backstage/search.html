@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<title>查找</title>
+    <link rel="shortcut icon" th:href="@{/favicon.ico/abc.ico}"></link>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+    <style type="text/css">
+	    
+		.search-box{
+		    position: absolute;
+		    top: 45%;
+		    left: 45%;
+		    transform: translate(-50%,-50%);
+		    background: #999966;
+		    height: 40px;
+		    border-radius: 40px;
+		    padding: 10px;
+		}
+			
+		.search-box:hover>.search-txt{
+		    width: 300px;
+		    padding: 0 6px;
+		}
+			
+		.search-box:hover>.search-btn{
+		    background: white;
+		}
+			
+		.search-btn{
+		    color: #e84118;
+		    float: right;
+		    width: 40px;
+		    height: 40px;
+		    border-radius: 50%;
+		    background: #2f3640;
+		    display: flex;
+		    justify-content: center;
+		    align-items: center;
+		    transition: 0.4s;
+		}
+			
+		.search-txt{
+		    border: none;
+		    background: none;
+		    outline: none;
+		    float: left;
+		    padding: 0;
+		    color: white;
+		    font-size: 16px;
+		    transition: 0.4s;
+		    line-height: 40px;
+		    width: 0px;
+		}
+		
+		.myfile{
+			font-size: 20px;
+		}
+		.myfile-title{
+			font-size: 24px;font-weight: bold;
+		}
+		
+	</style>
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    
+    <!-- 头部 -->
+    <div th:replace="common/pageCommon::header"></div>
+    
+    <!-- 内容主体区域 -->
+    <div class="layui-body" style="text-align: center;">
+    
+    	<!-- 文件搜索框 -->
+    	<div class="search-box" th:if="${#strings.isEmpty(listSearch)}" >
+            <input class="search-txt" type="text" placeholder="文件搜索：请输入文件名">
+            <span class="search-btn">
+                <svg class="icon" viewBox="0 0 1024 1024"><path d="M424.024 766.098c-91.619 0-177.754-35.679-242.538-100.464-133.735-133.737-133.735-351.344 0-485.078 64.784-64.784 150.919-100.462 242.538-100.462s177.754 35.677 242.539 100.462c133.733 133.735 133.735 351.34 0 485.078-64.785 64.783-150.922 100.464-242.539 100.464zM424.024 196.085c-60.637 0-117.643 23.613-160.523 66.489-88.512 88.51-88.51 232.53 0 321.040 42.876 42.876 99.885 66.491 160.523 66.491s117.643-23.614 160.523-66.491c88.51-88.51 88.51-232.53 0-321.040-42.876-42.876-99.885-66.489-160.523-66.489z" fill="#e94118" p-id="1176"></path><path d="M886.838 943.904c-14.842 0-29.684-5.663-41.010-16.986l-261.286-261.285c-22.647-22.649-22.647-59.369 0-82.018 22.647-22.647 59.37-22.647 82.018 0l261.286 261.286c22.647 22.649 22.647 59.369 0 82.018-11.325 11.322-26.167 16.985-41.010 16.985z" fill="#e94118" p-id="1177"></path></svg>
+            </span>
+            <form method="post" id="searchForm">
+				<input type="hidden" name="_method" value="delete">
+			</form>
+        </div>
+        
+        <!-- 搜索的结果用table显示出来 -->
+    	<table  cellspacing="0" border="2" style="align-content: center;">
+    		<tr  th:if="${not #strings.isEmpty(listSearch)}">
+    			<td><span class="myfile-title">name</span></td>
+    			<td><span class="myfile-title">type</span></td>
+    			<td><span class="myfile-title">createTime</span></td>
+    			<td><span class="myfile-title">path</span></td>
+    		</tr>
+    		<tr  th:each="f:${listSearch}">
+    			<td width="475px"><span class="myfile" th:text="${f.name}"></span></td>
+    			<td width="80px"><span class="myfile" th:text="${f.type}"></span></td>
+    			<td width="300px"><span class="myfile" th:text="${f.createTime}"></span></td>
+    			<td width="475px"><span class="myfile" th:text="${f.virtualPath}"></span></td>
+    		</tr>
+    	</table>
+	    <!-- css{overflow:auto;} html{设置一个div在底部} -->
+        <div style="height: 250px;"></div>
+    </div>
+
+    <!-- 底部固定区域 -->
+    <div th:replace="common/pageCommon::footer"></div>
+    
+</div>
+
+<!-- 分类页面 -->
+<div th:replace="common/pageCommon::classify"></div>
+
+<!-- layui JS模块 -->
+<script th:src="@{/layui/layui.js}"></script>
+<script>
+    //JavaScript代码区域，必须引用element模块，否则部分功能失效
+    layui.use('element', function(){
+        var element = layui.element;
+
+	   });
+</script>
+
+<!-- 不使用layui的js文件！ -->
+<script th:src="@{/js/jquery-1.8.3.js}"></script>
+<script>
+    //JavaScript代码区域
+    $(function(){
+    	
+    	if([[${not #strings.isEmpty(warnSearch)}]]){
+			alert("[[${warnSearch}]]");
+		};
+		
+    	$(".search-btn").click(function(){
+        	var fileName=$(".search-txt").val().trim()
+        	//正则表达式这里加双引号下面会报错：usernamePatt.test is not a function
+			var patt=new RegExp("[a-zA-Z0-9_]{1,}","");
+        	if(!patt.test(fileName)){
+				alert("查找的文件名为空，请重新输入");
+				return false;
+			}
+    		location.href="[[@{/index/search?fileName=}]]"+fileName+"&userId="+[[${session?.user?.id}]];
+    	})
+        
+        //获取文件共享信息
+    	$(".getfile").click(function(){
+    	   	location.href="[[@{/share/getShare}]]";
+    	});
+
+    });
+</script>
+</body>
+</html>
+

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>公共代码</title>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+</head>
+<body>
+	
+	<!-- 公共代码:头部 -->
+	<div th:fragment="header">
+		<div class="layui-header">
+	        <div class="layui-logo">数据网盘</div>
+	        <!-- 头部区域（可配合layui已有的水平导航） -->
+	        <ul class="layui-nav layui-layout-left">
+	        	<li class="layui-nav-item"><a href="javascript:;" class="createFile">新建文件</a></li>
+	            <li class="layui-nav-item"><a href="javascript:;" class="deleteFile">删除文件</a></li>
+	            <li class="layui-nav-item"><a href="javascript:;" class="rename">重命名</a></li>
+	            <li class="layui-nav-item"><a href="javascript:;" class="moveFile">移动文件</a></li>
+	            <li class="layui-nav-item"><a href="javascript:;" class="preview">预览文件</a></li>
+	            <li class="layui-nav-item">
+	                <a href="javascript:;">共享功能</a>
+	                <dl class="layui-nav-child">
+	                    <dd><a href="javascript:;" class="upload">文件上传</a></dd>
+	                    <dd><a href="javascript:;" class="download">文件下载</a></dd>
+	                    <dd><a href="javascript:;" class="getlink">文件分享</a></dd>
+	                    <dd><a href="javascript:;" class="getfile">获取分享文件</a></dd>
+	                </dl>
+	            </li>
+	        </ul>
+	        <ul class="layui-nav layui-layout-right">
+	            <li class="layui-nav-item">
+	                <div>
+	                	<img alt="" th:src="${session?.user?.img}" class="layui-nav-img" id="portrait">
+						<font id="username" th:text="${session?.user?.name}" style="font-size:20px;"></font>
+	                </div>
+	                <dl class="layui-nav-child">
+	                    <dd><a th:href="@{/link-Regist}">基本资料</a></dd>
+	                </dl>
+	            </li>
+	            <li class="layui-nav-item"><a th:href="@{/user/loginout}">退出</a></li>
+	        </ul>
+	    </div>
+	
+	    <div class="layui-side layui-bg-black">
+	        <div class="layui-side-scroll">
+	            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+	            <ul class="layui-nav layui-nav-tree"  lay-filter="test">
+	            	<li class="layui-nav-item"><a th:href="@{/link-Index}">文件首页</a></li>
+	            	<li class="layui-nav-item layui-nav-itemed">
+	                    <a class="" href="javascript:;">文件分类</a>
+	                    <dl class="layui-nav-child">
+	                        <dd>
+	                        	<a th:href="@{'/index/getText?userId='+${session?.user?.id}+'&type=文本'}">
+	                        		<span>&nbsp;&nbsp;&nbsp;文本<span>
+	                        	</a>
+	                        </dd>
+	                        <dd>
+	                        	<a th:href="@{'/index/getText?userId='+${session?.user?.id}+'&type=图片'}">
+	                        		<span>&nbsp;&nbsp;&nbsp;图片<span>
+	                        	</a>
+	                        </dd>
+	                        <dd>
+	                        	<a th:href="@{'/index/getText?userId='+${session?.user?.id}+'&type=视频'}">
+	                        		<span>&nbsp;&nbsp;&nbsp;视频<span>
+	                        	</a>
+	                        </dd>
+	                        <dd>
+	                        	<a th:href="@{'/index/getText?userId='+${session?.user?.id}+'&type=音频'}">
+	                        		<span>&nbsp;&nbsp;&nbsp;音频<span>
+	                        	</a>
+	                        </dd>
+	                        <dd>
+	                        	<a th:href="@{'/index/getText?userId='+${session?.user?.id}+'&type=office'}">
+	                        		<span>&nbsp;&nbsp;&nbsp;office<span>
+	                        	</a>
+	                        </dd>
+	                        <dd>
+	                        	<a th:href="@{'/index/getText?userId='+${session?.user?.id}+'&type=other'}">
+	                        		<span>&nbsp;&nbsp;&nbsp;其他<span>
+	                        	</a>
+	                        </dd>
+	                    </dl>
+	                </li>
+	                <li class="layui-nav-item"><a href="javascript:;" class="capacity">存储空间</a></li>
+	                <li class="layui-nav-item"><a th:href="@{/link-Search}">文件搜索</a></li>
+	                <li class="layui-nav-item"><a href="javascript:;" class="help">网盘帮助</a></li>
+	            </ul>
+	        </div>
+	        <form th:action="@{/index/getText}" method="post">
+	        	<input class="formuserId" name="userId" type="hidden" th:value="${session?.user?.id}">
+	        	<input class="formtype" name="type" type="hidden" th:value="文本">
+	        </form>
+	    </div>
+	    
+	</div>
+    
+ 
+    <!-- 底部固定区域 -->
+    <div class="layui-footer" style="text-align:center;" th:fragment="footer">
+        <span>2021@叶辉生的网盘系统</span>
+    </div>
+    
+    
+    <div th:fragment="javascript">
+    	<script th:src="@{/layui/layui.js}"></script>
+		<script>
+		    //JavaScript代码区域，必须引用element模块，否则部分功能失效
+		    layui.use('element', function(){
+		        var element = layui.element;
+		    });
+		</script>
+
+		<script th:src="@{/js/jquery-1.8.3.js}"></script>
+		<script>
+			//新建文件
+			$(".createFile").click(function(){
+				var path=$(".clientPath").val().trim();
+	        	if(path=="/" || path=="//"){
+					alert("必须在myfile根目录下创建文件，请重新选择创建路径");
+					return false;
+				}
+	        	var fileName=path.split("/")[path.split("/").length-1];
+	        	if(fileName.indexOf(".")!=-1){
+	        		alert("选择路径错误！请选择文件夹或目录！")
+	        		window.history.back();
+	        		return false;
+	        	}
+				location.href="[[@{/fileOperate/createPage?clientPath=}]]"+path;
+			});
+			//删除文件
+			$(".deleteFile").click(function(){
+				var path=$(".clientPath").val().trim();
+				if(path=="/" || path=="/myfile"){
+					alert("禁止删除myfile根目录文件");
+					return false;
+				}
+				var flag=confirm("确定要删除"+ path +"文件目录吗？");
+				 if(!flag){
+					 return false;
+				 }
+				location.href="[[@{/fileOperate/deleteFile?clientPath=}]]"+path+"&userId="+[[${session?.user?.id}]];
+			});
+			//重命名
+			$(".rename").click(function(){
+				var path=$(".clientPath").val().trim();
+	        	if(path=="/" || path=="/myfile"){
+					alert("禁止修改myfile根目录文件名");
+					return false;
+				}
+    			if(path.indexOf(".")!=-1){
+	    			alert("只能重命名文件夹！");
+					return false;
+	    		}
+				location.href="[[@{/fileOperate/renamePage?clientPath=}]]"+path;
+			});
+	
+	
+			//点击文件查询文件
+	    	$(".img").click(function(){
+	    		var path="";
+	    		if([[${#strings.isEmpty(list)}]]){
+	    			path=$(".clientPath").val().trim()+$(".myfile").text();
+	    		}else{
+	    			path=$(".clientPath").val().trim()+"/"+$(this).attr("url");
+	    		}
+		    	location.href="[[@{/index/look?clientPath=}]]"+path+"&userId="+[[${session?.user?.id}]];
+		    });
+			
+	    	//文件上传
+	    	$(".upload").click(function(){
+	    		alert("上传的必须是文件，不能是文件夹（可以将文件夹压缩成.zip再进行上传）")
+	    		var path=$(".clientPath").val().trim();
+	    		if(path.indexOf(".")!=-1){
+	    			alert("上传路径不可以是文件！在上传的目录内点击 '文件上传' 即可！（文件名带有 . 也会触发）");
+					return false;
+	    		}
+		    	location.href="[[@{/uploadPage?clientPath=}]]"+path;
+		    });
+	    	
+	    	//文件下载
+	    	$(".download").click(function(){
+	    		var path=$(".clientPath").val().trim();
+	    		if(path=="/"){
+					alert("请选择需要下载的文件！");
+					return false;
+				}
+	    		if(path.indexOf(".")==-1){
+	    			alert("下载的必须是文件，不能是文件夹！（文件名没有 . 也会触发）");
+					return false;
+	    		}
+	    		location.href="[[@{/download?clientPath=}]]"+path+"&userId="+[[${session?.user?.id}]];
+		    });
+	    	
+	    	//文件共享
+	    	$(".getlink").click(function(){
+	    		var path=$(".clientPath").val().trim();
+		    	location.href="[[@{/share/sharePage?clientPath=}]]"+path;
+		    });
+	    	
+	    	//获取文件共享信息
+	    	$(".getfile").click(function(){
+	    		var path=$(".clientPath").val().trim();
+		    	location.href="[[@{/share/getShare?clientPath=}]]"+path;
+		    });
+	    	
+	    	//移动
+	    	$(".moveFile").click(function(){
+	    		var path=$(".clientPath").val().trim();
+	    		location.href="[[@{/fileOperate/movePage?clientPath=}]]"+path;
+		    });
+		</script>
+		
+		<script th:src="@{/js/Base64.js}"></script>
+		<script type="text/javascript">
+			//使用KkFileView插件预览文件，需要在本机开启KkFileView应用，引入Base64的js文件
+	    	$(".preview").click(function(){
+	    		var path=$(".clientPath").val().trim();
+	    		if(path.indexOf(".")==-1){
+	    			alert("文件夹无效！（文件名没有 . 也会触发）");
+					return false;
+	    		}
+	    		//要预览文件的访问地址
+	    		var url="file/"+"[[${session.user.id}]]"+path.replace("/myfile/","/");
+	    		var previewUrl = "[[${session.serverPath}]]"+url;
+	    		window.open('http://127.0.0.1:8012/onlinePreview?url='+encodeURIComponent(Base64.encode(previewUrl)));
+		    });
+		</script>
+		
+    </div>
+
+	<!-- 文件分类显示模块 -->
+	<div th:fragment="classify">
+		<script th:src="@{/js/jquery-1.8.3.js}"></script>
+		<script type="text/javascript">
+			$(function(){
+				$(".help").click(function(){
+					location.href="[[@{/link-Help}]]"
+				})
+				$(".capacity").click(function(){
+					location.href="[[@{/system/capacity?userId=}]]"+[[${session?.user?.id}]];
+				})
+			})
+		</script>
+	</div>
+</body>
+</html>

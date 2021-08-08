@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>帮助</title>
+    <link rel="shortcut icon" th:href="@{/favicon.ico/abc.ico}"></link>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    
+    <!-- 头部 -->
+    <div th:replace="common/pageCommon::header"></div>
+    
+    <!-- 内容主体区域 -->
+    <div class="layui-body">
+        <div  style="position:absolute;left:20%;top:24%;font-size:20px;">
+        	<ol type="1">
+        		<li>1、功能：存储文件、下载文件、文件分享、文件预览等，不支持在线编辑</li><br>
+        		<li>2、导航栏：顶部导航栏的文件操作只对左侧导航栏&nbsp;&nbsp;"文件首页"&nbsp;&nbsp;内的文件有效（共享功能&nbsp;-&nbsp;获取分享文件除外）</li><br>
+        		<li>3、操作：所有对文件的操作都需要点击进入该文件后，再点击操作按钮</li><br>
+        		<li>4、存储：每个用户拥有最大存储空间20GB</li><br>
+        		<li>5、故障：如果网站出现问题，可电话联系181xxxx7919</li><br>
+        		<li>6、建议：如果对该网站有任何建议，可以发送到yehuisheng2021@163.com邮箱</li><br>
+        	</ol>
+        </div>
+    </div>
+
+    <!-- 底部固定区域 -->
+    <div th:replace="common/pageCommon::footer"></div>
+    
+</div>
+
+<!-- 分类页面 -->
+<div th:replace="common/pageCommon::classify"></div>
+
+<script th:src="@{/layui/layui.js}"></script>
+<script>
+	//JavaScript代码区域，必须引用element模块，否则部分功能失效
+	layui.use('element', function(){
+		var element = layui.element;
+	});
+</script>

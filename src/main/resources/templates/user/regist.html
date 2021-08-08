@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="UTF-8">
+		<title>个人页面</title>
+		<link rel="shortcut icon" th:href="@{/favicon.ico/aaa.ico}"></link>
+		<script type="text/javascript" th:src="@{/js/jquery-1.8.3.js}"></script>
+		
+		<script type="text/javascript">
+
+			$(function(){
+				if([[${not #strings.isEmpty(session?.user)}]]){
+					$("#icon").attr("src","[[${session?.user?.img}]]");
+				}
+				
+				//更换验证码
+				$("#code_img").click(function(){
+		            $(this).attr('src', '[[@{/user/getVerifyCode?}]]'+new Date());
+				})
+				
+				//点击登录按钮就页面跳转
+				$("#sub").click(function(){
+					if([[${not #strings.isEmpty(session?.user)}]]){
+						location.href="[[@{/link-Index}]]";
+					}else{
+						location.href="[[@{/link-Login}]]";
+					}
+				})
+				
+				//正则表达式这里加双引号下面会报错：usernamePatt.test is not a function
+				var patt=new RegExp("[a-zA-Z0-9_]{5,12}","");
+				
+				//给注册按钮绑定鼠标点击事件
+				$("#sub_btn").click(function(){
+					
+					var usernameText=$("#name").val().trim();
+					if(!patt.test(usernameText)){
+						$("span.errorMsg").text("用户名不合法");
+						return false;
+					}
+
+					//验证密码：必须由字母、数字和下划线组成，长度5-12位
+					var passwordText=$("#password").val().trim();
+					if(!patt.test(passwordText)){
+						$("span.errorMsg").text("密码不合法");
+						return false;
+					}
+
+					//确认密码
+					var repwdText=$("#repwd").val().trim();
+					if(passwordText!=repwdText){
+						$("span.errorMsg").text("确认密码和密码不一致");
+						return false;
+					}
+
+					//验证邮箱：xxxxx@xxx.com
+					var emailText=$("#email").val().trim();
+					var emailPatt=new RegExp("[a-zA-Z0-9_]+@[a-zA-Z0-9_]{2,}(\.[a-zA-Z0-9_]+)","");
+					if(!emailPatt.test(emailText)){
+						$("span.errorMsg").text("邮箱地址不合法");
+						return false;
+					}
+					
+					//验证码：现在只需要验证用户是否有输入，验证正确性需要服务器去实现
+					var codeText=$("#code").val().trim();
+					if(codeText==null || codeText==""){
+						$("span.errorMsg").text("验证码不能为空");
+						return false;
+					}
+
+					//把错误提示去除
+					$("span.errorMsg").text("");
+				});
+
+				$(".delete").click(function(){
+					/*	confirm是确认提示框函数
+					 *	点击确定，返回true，点击取消，返回false
+					 *	return false：阻止元素的默认行为，即不删除该图书
+					 */
+					 var flag=confirm("确定要注销"+ $(this).attr("pName")+"用户的信息吗？");
+					 if(!flag){
+						 return false;
+					 }
+					$("#deleteForm").attr("action",$(this).attr("url")).submit();
+					return false;
+				});
+			});
+		</script>
+		
+		<!--  AJAX请求处理头像更换  -->
+		<script type="text/javascript">
+			$(function(){
+				$("#btn").change(function () {
+					var formData = new FormData();
+					formData.append("file",document.getElementById("btn").files[0]);
+					$.ajax({
+						url:"[[@{/user/upload}]]",
+						type:"POST",
+						data:formData,
+						contentType:false,
+						processData:false,
+						success:function (event) {
+							$("#icon").attr("src",event);
+							$("#hidden").attr("value",event);
+						}
+					})
+				})
+			})
+		</script>
+		
+		<style type="text/css">
+			.login_form{
+				height:420px;
+				margin-top:25px;
+			}
+			.logo_img{
+				height:150px;
+				width:150px;
+			}
+			span.errorMsg{
+				font-size:18px;
+				color:red;
+			}
+			#divdiv{
+				display:flex;
+				justify-content:flex-start;
+				height:20px;
+			}
+			body{
+				position: absolute;
+				left: 50%;
+				top: 51%;
+				transform: translate(-60%,-56%);
+				background-image: url("/networkdisk/picture/LoginAndRegist.jpg");
+				background-size: 41%;
+				/* 禁止页面滚动 */
+				overflow: hidden;
+			}
+			.login_banner{
+				width: 400px;
+				height: 636px;
+				color: white;
+				background-color: rgba(0,0,0,0.2);
+				text-align: center;
+			}
+			.logo_img{
+				border-radius: 50%;
+				overflow: auto;
+			}
+		</style>
+		
+	</head>
+	<body >
+		<div class="login_banner">
+			<div style="height: 0px;"></div><br><br>
+			<img class="logo_img" alt="" th:src="@{/picture/logo.jpg}">
+			<div class="login_form">
+				<div class="login_title">
+				<h2 th:text="${#strings.isEmpty(session?.user)}?'注册数据网盘账号':'修改个人资料'"></h2>
+			</div>
+				 		
+			<div class="form">
+				<form th:action="@{/user/registOrUpdate}" method="post">
+					<input type="hidden" name="capacity" th:value="${session?.user?.capacity}" th:if="${session?.user!=null}">
+					<div>
+						<label for="btn">
+				       	<img alt="" id="icon" style="width: 70px;height: 70px;border-style: ridge;"
+						th:src="@{/picture/background.jpg}">
+				    	</label>
+			    		<input type="file" id="btn" style="display: none">
+			    		<input type="hidden" name=img  value="picture/background.jpg" id="hidden">
+					</div>
+													
+					<span class="errorMsg" th:text="${msg}"></span>
+			    	<div>&nbsp;</div>
+					<label>用户名称：</label>
+					<input class="itxt" type="text" placeholder="请输入用户名" size="25px"
+						autocomplete="off" tabindex="1" name="name" id="name"
+						th:value="${#strings.isEmpty(session?.user)}?${name}:${session?.user?.name}"/>
+					<br><br>
+								
+					<label>用户密码：</label>
+					<input class="itxt" type="password" placeholder="请输入密码" size="25px"
+						autocomplete="off" tabindex="1" name="password" id="password"
+						th:value="${session?.user?.password}"/>
+					<br><br>
+								
+					<label>确认密码：</label>
+					<input class="itxt" type="password" placeholder="确认密码" size="25px"
+						autocomplete="off" tabindex="1" name="repwd" id="repwd"/>
+					<br><br>
+								
+					<label>电子邮箱：</label>
+					<input class="itxt" type="text" placeholder="请输入邮箱地址" size="25px"
+						autocomplete="off" tabindex="1" name="email" id="email"
+						th:value="${#strings.isEmpty(session?.user)}?${email}:${session?.user?.email}"/>
+					<br><br>
+								
+					<div id="divdiv">
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						&nbsp;&nbsp;&nbsp;&nbsp;
+						<label>验证码：</label>
+						<input class="itxt" type="text" tabindex="1" placeholder="请输入验证码" 
+						size="11px" name="code" id="code">
+						&nbsp;
+						<img id="code_img" alt="" th:src="@{/user/getVerifyCode}"  size="20px"
+						style="width:99px;border:1px solid #9900ff"/>
+					</div>
+					
+					<!-- 修改资料就把id值也传递过去 -->
+					<input type="hidden" name="id" 
+						th:value="${session?.user?.id}" th:if="${session?.user!=null}">
+								
+					<br><br>
+					<input type="submit" id="sub_btn" style="width: 80px;background-color: #ffcc99"
+					th:value="${#strings.isEmpty(session?.user)}?'注 册':'修 改'"/>
+					&nbsp;&nbsp;&nbsp;
+					
+					<input type="button"id="sub" style="width: 80px;background-color: #ffcc99"
+					th:value="${#strings.isEmpty(session?.user)}?'登 录':'返 回'"/>
+					&nbsp;&nbsp;&nbsp;
+					
+					<!-- 使用attr自定义标签 -->
+					<button class="delete" th:if="${session?.user!=null}"  
+					style="width: 80px;background-color: #ffcc99"
+					th:attr="url=@{/user/delete/}+${session?.user?.id},pName=${session?.user?.name}">
+						注销
+					</button>
+				</form>
+				
+				<form method="post" id="deleteForm">
+					<input type="hidden" name="_method" value="delete">
+				</form>
+				<br><br>
+				<div style="height: 80px;"></div>
+			</div>
+		</div>
+		<div id="end"><br>2021@叶辉生的网盘系统</div>
+	</body>
+</html>
+    
+    
+    

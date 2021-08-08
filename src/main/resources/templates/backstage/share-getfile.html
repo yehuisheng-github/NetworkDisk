@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<title>文件共享</title>
+    <link rel="shortcut icon" th:href="@{/favicon.ico/abc.ico}"></link>
+    <link rel="stylesheet" th:href="@{/layui/css/layui.css}">
+</head>
+<body>
+<div class="layui-layout layui-layout-admin">
+    
+    <!-- 头部 -->
+    <div th:replace="common/pageCommon::header"></div>
+    
+    <!-- 内容主体区域 -->
+    <div class="layui-body">
+    
+        <!-- 链接行 -->
+        <div size="80px" style="text-align: center; position:absolute;left:12%;top:8%;">
+        	<input type="text" class="link" style="width:720px;height:36px;" placeholder="请输入文件分享链接">
+        	<input type="submit" style="width: 160px;height: 39px;" class="layui-btn" id="submit" th:value="获取">
+        </div>
+        <!-- 文件信息表单 -->
+        <table class="table" border="1" cellpadding="1" cellspacing="1"
+        	style="text-align: center; position:absolute;left:6%;top:20%;" >
+        </table>
+	    <!-- css{overflow:auto;} html{设置一个div在底部} -->
+        <div style="height: 150px;"></div>
+    </div>
+
+    <!-- 底部固定区域 -->
+    <div th:replace="common/pageCommon::footer"></div>
+    
+</div>
+</body>
+
+<!-- 分类页面 -->
+<div th:replace="common/pageCommon::classify"></div>
+
+<script th:src="@{/layui/layui.js}"></script>
+<script th:src="@{/js/jquery-1.8.3.js}"></script>
+<script type="text/javascript">
+	$(function(){
+
+		//创建空字符串和索引
+		var index=0;
+		var clientPath="";
+		
+		$("#submit").click(function () {
+			var path=$(".link").val().trim();
+			//避免同一个链接连续获取两次文件
+			if(clientPath==path){
+				return false;
+			}
+			clientPath=path;
+			$.ajax({
+				url:"[[@{/share/getfile}]]",
+				data:{"link":path},
+				type:"get",
+				datatype:"json",
+				success:function (event) {
+					
+					if(event=="当前链接无效！"){
+						alert(event);
+						return false;
+					}
+					
+                    //使用索引，指定th表格标题只添加一次
+					if(index==0){
+						var th = $(['<tr>'
+							,'<th width="400px" height="36px">文件名</th>'
+							,'<th width="80px">分享用户</th>'
+							,'<th width="300px">分享时间</th>'
+							,'<th width="80px">文件类型</th>'
+							,'<th width="80px">文件大小(KB)</th>'
+							,'<th width="200px">操作</th>'
+							,'</tr>']);
+						th.appendTo($(".table"));
+					}
+					index=index+1;
+					
+					var tr=$("<tr>"
+						+"<td  height='42px'>"+ event.name +"</td>"
+                        +"<td>"+event.userName +"</td>"
+                        +"<td>"+event.createTime+"</td>"
+                        +"<td>"+event.type+"</td>"
+                        +"<td>"+event.size+"</td>"
+                        +"<td>"
+                        +"<a class='layui-btn'>保存</a>"
+                        +"<button class='layui-btn layui-btn-mini layui-btn-warm'>下载</button>"
+                        +"</td>"
+                        +"<td class='layui-hide'>"+event.virtualPath+"</td>"
+                        +"<td class='layui-hide'>"+event.userId+"</td>"
+                        +"</tr>");
+                    //追加文件到表单
+                    tr.appendTo($(".table"));
+                  	//find函数用于查找后代的元素
+					tr.find("a").click(save);
+					tr.find("button").click(download);
+				}
+			});
+		});
+		
+		//保存文件
+		function save(){
+			/*
+				this表示当前正在响应事件的DOM对象，也就是响应事件的某个a标签
+				要删除a标签所在的行，$(this).parent()就是a标签的父元素td
+				td的父元素就是当前所在的行tr
+			*/
+			var tr=$(this).parent().parent();
+			var clientPath=tr.find("td:eq(6)").text();
+			var shareUserId=tr.find("td:eq(7)").text();
+			location.href="[[@{/share/save?clientPath=}]]"+clientPath+"&myUserId="+[[${session?.user?.id}]]+"&shareUserId="+shareUserId;
+		}
+		
+		//文件下载
+    	function download(){
+    		var tr=$(this).parent().parent();
+			var clientPath=tr.find("td:eq(6)").text();
+			alert(clientPath)
+			var userId=tr.find("td:eq(1)").text();
+    		location.href="[[@{/download?clientPath=}]]"+clientPath+"&userId="+userId;
+	    }
+	})
+</script>
+</html>
