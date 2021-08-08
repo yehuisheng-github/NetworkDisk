@@ -1,1 +1,6 @@
-运行该网盘系统，需要数据库建表、连接redis、搭建KkFileView插件，并且需要更改文件存储的实际位置
+运行该网盘系统，需要
+	1、数据库建表
+	2、连接redis
+	3、搭建KkFileView插件
+	4、更改工作区位置为项目的实际根路径，根目录必须有public或static目录
+	    （eclipse：run as -> run Configurations -> Arguments -> Work directroy --> other）
